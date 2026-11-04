@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,5 +7,190 @@
 </head>
 <body>
     <h1>Loan Simulator</h1>
+
+    <form id="loan-form" novalidate>
+        <p>
+            <label for="amount">Monto del préstamo:</label>
+            <input type="number" id="amount" min="0" step="any" required>
+        </p>
+
+        <p>
+            <label for="rate">Tasa de interés (%):</label>
+            <input type="number" id="rate" min="0" step="any" required>
+        </p>
+
+        <p>
+            <label for="rate-type">Tipo de tasa:</label>
+            <select id="rate-type">
+                <option value="monthly">Efectiva Mensual</option>
+                <option value="annual">Efectiva Anual</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="months">Plazo en meses:</label>
+            <input type="number" id="months" min="1" step="1" required>
+        </p>
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    <p id="error" role="alert"></p>
+
+    <section id="results" hidden aria-live="polite">
+        <h2>Resultados</h2>
+        <p>Cuota mensual: <span id="monthly-payment"></span></p>
+        <p>Total pagado: <span id="total-paid"></span></p>
+        <p>Total de intereses: <span id="total-interest"></span></p>
+        <p>Los valores monetarios se muestran con dos decimales.</p>
+
+        <table>
+            <caption>Tabla de amortización</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Período</th>
+                    <th scope="col">Saldo inicial</th>
+                    <th scope="col">Cuota</th>
+                    <th scope="col">Interés</th>
+                    <th scope="col">Abono a capital</th>
+                    <th scope="col">Saldo final</th>
+                </tr>
+            </thead>
+            <tbody id="schedule"></tbody>
+        </table>
+    </section>
+
+    <script>
+        const form = document.getElementById("loan-form");
+        const error = document.getElementById("error");
+        const results = document.getElementById("results");
+        const schedule = document.getElementById("schedule");
+
+        const moneyFormatter = new Intl.NumberFormat("es-CO", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        function formatMoney(value) {
+            return moneyFormatter.format(value);
+        }
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Limpiar la simulación anterior.
+            error.textContent = "";
+            results.hidden = true;
+            schedule.replaceChildren();
+
+            const amount = document.getElementById("amount").valueAsNumber;
+            const rate = document.getElementById("rate").valueAsNumber;
+            const months = document.getElementById("months").valueAsNumber;
+            const rateType = document.getElementById("rate-type").value;
+
+            if (!Number.isFinite(amount) || amount <= 0) {
+                error.textContent = "Ingresa un monto del préstamo mayor que cero.";
+                return;
+            }
+
+            if (!Number.isFinite(rate) || rate < 0) {
+                error.textContent = "Ingresa una tasa de interés igual o mayor que cero.";
+                return;
+            }
+
+            if (!Number.isSafeInteger(months) || months <= 0) {
+                error.textContent = "Ingresa un plazo en meses que sea un número entero positivo.";
+                return;
+            }
+
+            const decimalRate = rate / 100;
+
+            // log1p y expm1 conservan precisión para tasas pequeñas.
+            const monthlyRate = rateType === "annual"
+                ? Math.expm1(Math.log1p(decimalRate) / 12)
+                : decimalRate;
+
+            const payment = monthlyRate === 0
+                ? amount / months
+                : amount * (
+                    monthlyRate /
+                    -Math.expm1(-months * Math.log1p(monthlyRate))
+                );
+
+            if (!Number.isFinite(payment) || payment <= 0) {
+                error.textContent = "No es posible calcular la cuota con estos valores.";
+                return;
+            }
+
+            let balance = amount;
+            let totalPaid = 0;
+            let totalInterest = 0;
+            const rows = document.createDocumentFragment();
+
+            for (let period = 1; period <= months; period++) {
+                const initialBalance = balance;
+                const interest = initialBalance * monthlyRate;
+
+                let principalPayment = payment - interest;
+                let currentPayment = payment;
+
+                // Ajustar la última cuota para cancelar el saldo pendiente.
+                if (period === months) {
+                    principalPayment = initialBalance;
+                    currentPayment = principalPayment + interest;
+                    balance = 0;
+                } else {
+                    principalPayment = Math.min(
+                        initialBalance,
+                        Math.max(0, principalPayment)
+                    );
+                    currentPayment = principalPayment + interest;
+                    balance = initialBalance - principalPayment;
+                }
+
+                totalPaid += currentPayment;
+                totalInterest += interest;
+
+                if (
+                    !Number.isFinite(totalPaid) ||
+                    !Number.isFinite(totalInterest)
+                ) {
+                    error.textContent = "Los valores ingresados exceden la capacidad de cálculo.";
+                    return;
+                }
+
+                const row = document.createElement("tr");
+                const values = [
+                    period,
+                    formatMoney(initialBalance),
+                    formatMoney(currentPayment),
+                    formatMoney(interest),
+                    formatMoney(principalPayment),
+                    formatMoney(balance)
+                ];
+
+                values.forEach(function (value) {
+                    const cell = document.createElement("td");
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+
+                rows.appendChild(row);
+            }
+
+            schedule.appendChild(rows);
+
+            document.getElementById("monthly-payment").textContent =
+                formatMoney(payment);
+
+            document.getElementById("total-paid").textContent =
+                formatMoney(totalPaid);
+
+            document.getElementById("total-interest").textContent =
+                formatMoney(totalInterest);
+
+            results.hidden = false;
+        });
+    </script>
 </body>
 </html>
