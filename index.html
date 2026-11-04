@@ -5,181 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Simulator</title>
 
-    <style>
-        :root {
-            font-family: system-ui, sans-serif;
-            color: #0F172A;
-            background: #F8FAFC;
-            color-scheme: light;
-        }
+    <link rel="stylesheet" href="style.css">
 
-        * { box-sizing: border-box; }
-        body { margin: 0; }
-        [hidden] { display: none !important; }
-
-        main {
-            width: min(1100px, 100%);
-            margin: auto;
-            padding: 32px 20px;
-        }
-
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            margin-bottom: 28px;
-        }
-
-        h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 5vw, 2.5rem); }
-        h2 { font-size: 1.25rem; margin-top: 0; }
-        p { line-height: 1.6; }
-        .muted { color: #475569; }
-        header p { margin: 0; }
-
-        .panel, .card {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 16px;
-            padding: 24px;
-            min-width: 0;
-        }
-
-        .panel {
-            margin-bottom: 24px;
-            box-shadow: 0 6px 24px rgb(15 23 42 / 4%);
-        }
-
-        .fields {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 24px;
-        }
-
-        label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        input, select, button { font: inherit; }
-
-        input, select {
-            width: 100%;
-            min-height: 48px;
-            border: 1px solid #94A3B8;
-            border-radius: 10px;
-            padding: 12px;
-            background: white;
-            color: #0F172A;
-        }
-
-        :where(input, select, button, .table-wrap):focus-visible {
-            outline: 3px solid #2563EB;
-            outline-offset: 3px;
-        }
-
-        [aria-invalid="true"] { border-color: #B91C1C; }
-
-        button {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            min-height: 48px;
-            padding: 12px 22px;
-            border: 0;
-            border-radius: 10px;
-            background: #2563EB;
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        button:hover { background: #1D4ED8; }
-        button:active { background: #1E40AF; }
-        .calculate { margin-top: 24px; }
-        .secondary { background: #0F172A; }
-        .secondary:hover { background: #334155; }
-        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-        .language { min-width: 150px; }
-
-        svg {
-            width: 20px;
-            height: 20px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            flex-shrink: 0;
-        }
-
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .card:first-child { background: #EFF6FF; border-color: #BFDBFE; }
-        .card p { color: #475569; margin: 0 0 8px; }
-        .card strong { font-size: 1.5rem; overflow-wrap: anywhere; }
-        .error { color: #B91C1C; font-weight: 600; }
-        .error:empty { display: none; }
-
-        dl {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-            margin: 0;
-        }
-
-        dt { color: #475569; margin-bottom: 4px; }
-        dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
-
-        .table-wrap { overflow-x: auto; }
-        table { border-collapse: collapse; width: 100%; white-space: nowrap; }
-        caption { text-align: left; font-size: 1.25rem; font-weight: 700; padding-bottom: 20px; }
-        th, td { padding: 14px; text-align: right; border-bottom: 1px solid #E2E8F0; }
-        th { background: #F8FAFC; }
-        th:first-child, td:first-child { text-align: left; }
-        td { font-variant-numeric: tabular-nums; }
-        tbody tr:hover { background: #F8FAFC; }
-        .note { font-size: .9rem; margin-bottom: 0; }
-
-        @media (max-width: 640px) {
-            header { flex-direction: column; align-items: stretch; }
-            .fields, .summary, dl { grid-template-columns: 1fr; }
-            main { padding: 24px 16px; }
-            .panel { padding: 18px; }
-            button { width: 100%; }
-        }
-
-        @page { size: A4 landscape; margin: 12mm; }
-
-        @media print {
-            body { background: white; font-size: 10pt; }
-            main { width: 100%; padding: 0; }
-            .language, #input-panel, .actions, .error, .intro { display: none !important; }
-            header { margin-bottom: 16px; }
-            .panel, .card { box-shadow: none; border-radius: 0; padding: 12px; }
-            .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .summary, .details { break-inside: avoid; }
-            .table-wrap { overflow: visible; }
-            table { white-space: normal; table-layout: fixed; font-size: 9pt; }
-            th, td { padding: 7px; overflow-wrap: anywhere; }
-            thead { display: table-header-group; }
-            tr { break-inside: avoid; page-break-inside: avoid; }
-        }
-    </style>
-
-    <!-- Documentación: https://www.npmjs.com/package/jspdf-autotable -->
     <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="actions.js" defer></script>
 </head>
 <body>
     <svg hidden xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -209,6 +39,7 @@
                 <h1>Loan Simulator</h1>
                 <p class="muted intro" data-i18n="intro"></p>
             </div>
+
             <div class="language">
                 <label for="language" data-i18n="language"></label>
                 <select id="language">
@@ -225,18 +56,24 @@
                 <div class="fields">
                     <div>
                         <label for="amount">
-                            <svg aria-hidden="true"><use href="#loan-icon"/></svg>
+                            <svg aria-hidden="true">
+                                <use href="#loan-icon"/>
+                            </svg>
                             <span data-i18n="amount"></span>
                         </label>
                         <input id="amount" type="number" min="0" step="any" required>
                     </div>
+
                     <div>
                         <label for="rate">
-                            <svg aria-hidden="true"><use href="#percent-icon"/></svg>
+                            <svg aria-hidden="true">
+                                <use href="#percent-icon"/>
+                            </svg>
                             <span data-i18n="rate"></span>
                         </label>
                         <input id="rate" type="number" min="0" step="any" required>
                     </div>
+
                     <div>
                         <label for="rate-type" data-i18n="rateType"></label>
                         <select id="rate-type">
@@ -244,9 +81,12 @@
                             <option value="annual" data-i18n="annual"></option>
                         </select>
                     </div>
+
                     <div>
                         <label for="months">
-                            <svg aria-hidden="true"><use href="#calendar-icon"/></svg>
+                            <svg aria-hidden="true">
+                                <use href="#calendar-icon"/>
+                            </svg>
                             <span data-i18n="months"></span>
                         </label>
                         <input id="months" type="number" min="1" step="1" required>
@@ -254,9 +94,12 @@
                 </div>
 
                 <button class="calculate" type="submit">
-                    <svg aria-hidden="true"><use href="#calculator-icon"/></svg>
+                    <svg aria-hidden="true">
+                        <use href="#calculator-icon"/>
+                    </svg>
                     <span data-i18n="calculate"></span>
                 </button>
+
                 <p id="error" class="error" role="alert"></p>
             </form>
         </section>
@@ -265,13 +108,25 @@
             <h2 id="results-title" data-i18n="results"></h2>
 
             <div class="actions">
-                <button id="print-button" type="button" class="secondary" data-i18n="print"></button>
-                <button id="pdf-button" type="button" data-i18n="pdf"></button>
+                <button
+                    id="print-button"
+                    type="button"
+                    class="secondary"
+                    data-i18n="print">
+                </button>
+
+                <button
+                    id="pdf-button"
+                    type="button"
+                    data-i18n="pdf">
+                </button>
             </div>
+
             <p id="export-error" class="error" role="alert"></p>
 
             <div class="panel details">
                 <h2 data-i18n="formTitle"></h2>
+
                 <dl>
                     <div>
                         <dt data-i18n="amount"></dt>
@@ -308,7 +163,11 @@
             </div>
 
             <div class="panel">
-                <div class="table-wrap" tabindex="0" role="region" aria-labelledby="table-title">
+                <div
+                    class="table-wrap"
+                    tabindex="0"
+                    role="region"
+                    aria-labelledby="table-title">
                     <table>
                         <caption id="table-title" data-i18n="schedule"></caption>
                         <thead>
@@ -324,376 +183,10 @@
                         <tbody id="schedule"></tbody>
                     </table>
                 </div>
+
                 <p class="muted note" data-i18n="decimals"></p>
             </div>
         </section>
     </main>
-
-    <script>
-        const translations = {
-            es: {
-                language: "Idioma",
-                intro: "Explora tus cuotas y planifica tu próximo préstamo.",
-                formTitle: "Datos del préstamo",
-                amount: "Monto del préstamo",
-                rate: "Tasa de interés (%)",
-                rateType: "Tipo de tasa",
-                monthly: "Efectiva Mensual",
-                annual: "Efectiva Anual",
-                months: "Plazo en meses",
-                calculate: "Calcular préstamo",
-                results: "Resumen de tu préstamo",
-                payment: "Cuota mensual",
-                totalPaid: "Total pagado",
-                totalInterest: "Total de intereses",
-                decimals: "Valores con dos decimales, en la misma unidad monetaria del monto ingresado.",
-                schedule: "Tabla de amortización",
-                period: "Período",
-                initialBalance: "Saldo inicial",
-                installment: "Cuota",
-                interest: "Interés",
-                principal: "Abono a capital",
-                finalBalance: "Saldo final",
-                print: "Imprimir",
-                pdf: "Exportar PDF",
-                invalidAmount: "Ingresa un monto del préstamo mayor que cero.",
-                invalidRate: "Ingresa una tasa de interés igual o mayor que cero.",
-                invalidMonths: "Ingresa un plazo en meses que sea un número entero positivo.",
-                invalidPayment: "No es posible calcular la cuota con estos valores.",
-                overflow: "Los valores ingresados exceden la capacidad de cálculo.",
-                pdfUnavailable: "No se cargaron las bibliotecas PDF. Comprueba tu conexión y recarga la página.",
-                pdfFailed: "No se pudo generar el PDF. Inténtalo nuevamente.",
-                printFailed: "No se pudo abrir la impresión. Usa la opción de imprimir del navegador."
-            },
-            en: {
-                language: "Language",
-                intro: "Explore your payments and plan your next loan.",
-                formTitle: "Loan details",
-                amount: "Loan amount",
-                rate: "Interest rate (%)",
-                rateType: "Rate type",
-                monthly: "Effective Monthly",
-                annual: "Effective Annual",
-                months: "Term in months",
-                calculate: "Calculate loan",
-                results: "Your loan summary",
-                payment: "Monthly payment",
-                totalPaid: "Total paid",
-                totalInterest: "Total interest",
-                decimals: "Values use two decimal places and the same monetary unit as the entered amount.",
-                schedule: "Amortization schedule",
-                period: "Period",
-                initialBalance: "Opening balance",
-                installment: "Payment",
-                interest: "Interest",
-                principal: "Principal repayment",
-                finalBalance: "Closing balance",
-                print: "Print",
-                pdf: "Export PDF",
-                invalidAmount: "Enter a loan amount greater than zero.",
-                invalidRate: "Enter an interest rate greater than or equal to zero.",
-                invalidMonths: "Enter a positive whole number of months.",
-                invalidPayment: "The payment cannot be calculated with these values.",
-                overflow: "The entered values exceed the calculation capacity.",
-                pdfUnavailable: "The PDF libraries did not load. Check your connection and reload the page.",
-                pdfFailed: "The PDF could not be generated. Please try again.",
-                printFailed: "Printing could not be opened. Use your browser's print option."
-            }
-        };
-
-        const get = id => document.getElementById(id);
-        const form = get("loan-form");
-        let language = "es";
-        let errorKey = "";
-        let exportErrorKey = "";
-        let simulation = null;
-        let moneyFormatter;
-        let rateFormatter;
-
-        try {
-            const saved = localStorage.getItem("loan-simulator-language");
-            if (saved === "es" || saved === "en") language = saved;
-        } catch {
-            // El almacenamiento no es indispensable.
-        }
-
-        const text = key => translations[language][key];
-        const money = value => moneyFormatter.format(value);
-
-        function showError(key, fieldId) {
-            errorKey = key;
-            get("error").textContent = key ? text(key) : "";
-
-            if (fieldId) {
-                const field = get(fieldId);
-                field.setAttribute("aria-invalid", "true");
-                field.setAttribute("aria-describedby", "error");
-                field.focus();
-            }
-        }
-
-        function showExportError(key) {
-            exportErrorKey = key;
-            get("export-error").textContent = key ? text(key) : "";
-        }
-
-        // Estos datos provienen de la última simulación válida.
-        function reportDetails() {
-            return [
-                [text("amount"), money(simulation.amount)],
-                [text("rate"), rateFormatter.format(simulation.rate) + " %"],
-                [text("rateType"), text(simulation.rateType)],
-                [text("months"), String(simulation.months)]
-            ];
-        }
-
-        function renderResults() {
-            get("schedule").replaceChildren();
-            get("results").hidden = simulation === null;
-            if (!simulation) return;
-
-            const details = reportDetails();
-            ["report-amount", "report-rate", "report-type", "report-months"]
-                .forEach((id, index) => {
-                    get(id).textContent = details[index][1];
-                });
-
-            get("monthly-payment").textContent = money(simulation.payment);
-            get("total-paid").textContent = money(simulation.totalPaid);
-            get("total-interest").textContent = money(simulation.totalInterest);
-
-            const fragment = document.createDocumentFragment();
-
-            simulation.rows.forEach(values => {
-                const row = document.createElement("tr");
-                values.forEach((value, index) => {
-                    const cell = document.createElement("td");
-                    cell.textContent = index === 0 ? String(value) : money(value);
-                    row.appendChild(cell);
-                });
-                fragment.appendChild(row);
-            });
-
-            get("schedule").appendChild(fragment);
-        }
-
-        function applyLanguage() {
-            document.documentElement.lang = language;
-            get("language").value = language;
-
-            const locale = language === "es" ? "es-CO" : "en-US";
-            moneyFormatter = new Intl.NumberFormat(locale, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            rateFormatter = new Intl.NumberFormat(locale, {
-                maximumSignificantDigits: 15
-            });
-
-            document.querySelectorAll("[data-i18n]").forEach(element => {
-                element.textContent = text(element.dataset.i18n);
-            });
-
-            showError(errorKey);
-            showExportError(exportErrorKey);
-            renderResults();
-        }
-
-        get("language").addEventListener("change", () => {
-            language = get("language").value;
-            try {
-                localStorage.setItem("loan-simulator-language", language);
-            } catch {
-                // Se conserva el idioma durante esta sesión.
-            }
-            applyLanguage();
-        });
-
-        form.addEventListener("submit", event => {
-            event.preventDefault();
-            simulation = null;
-            showError("");
-            showExportError("");
-            renderResults();
-
-            form.querySelectorAll("[aria-invalid]").forEach(field => {
-                field.removeAttribute("aria-invalid");
-                field.removeAttribute("aria-describedby");
-            });
-
-            const amount = get("amount").valueAsNumber;
-            const rate = get("rate").valueAsNumber;
-            const months = get("months").valueAsNumber;
-            const rateType = get("rate-type").value;
-
-            if (!Number.isFinite(amount) || amount <= 0) {
-                showError("invalidAmount", "amount");
-                return;
-            }
-            if (!Number.isFinite(rate) || rate < 0) {
-                showError("invalidRate", "rate");
-                return;
-            }
-            if (!Number.isSafeInteger(months) || months <= 0) {
-                showError("invalidMonths", "months");
-                return;
-            }
-
-            const decimalRate = rate / 100;
-            const monthlyRate = rateType === "annual"
-                ? Math.expm1(Math.log1p(decimalRate) / 12)
-                : decimalRate;
-
-            const payment = monthlyRate === 0
-                ? amount / months
-                : amount * (
-                    monthlyRate /
-                    -Math.expm1(-months * Math.log1p(monthlyRate))
-                );
-
-            if (!Number.isFinite(payment) || payment <= 0) {
-                showError("invalidPayment");
-                return;
-            }
-
-            let balance = amount;
-            let totalPaid = 0;
-            let totalInterest = 0;
-            const rows = [];
-
-            for (let period = 1; period <= months; period++) {
-                const initialBalance = balance;
-                const interest = initialBalance * monthlyRate;
-                let principalPayment;
-                let currentPayment;
-
-                if (period === months) {
-                    principalPayment = initialBalance;
-                    currentPayment = principalPayment + interest;
-                    balance = 0;
-                } else {
-                    principalPayment = Math.min(
-                        initialBalance,
-                        Math.max(0, payment - interest)
-                    );
-                    currentPayment = principalPayment + interest;
-                    balance = initialBalance - principalPayment;
-                }
-
-                totalPaid += currentPayment;
-                totalInterest += interest;
-
-                if (!Number.isFinite(totalPaid) || !Number.isFinite(totalInterest)) {
-                    showError("overflow");
-                    return;
-                }
-
-                rows.push([
-                    period, initialBalance, currentPayment,
-                    interest, principalPayment, balance
-                ]);
-            }
-
-            simulation = {
-                amount, rate, rateType, months,
-                payment, totalPaid, totalInterest, rows
-            };
-
-            renderResults();
-        });
-
-        get("print-button").addEventListener("click", () => {
-            if (!simulation) return;
-            showExportError("");
-            renderResults();
-
-            try {
-                window.print();
-            } catch {
-                showExportError("printFailed");
-            }
-        });
-
-        get("pdf-button").addEventListener("click", () => {
-            if (!simulation) return;
-            showExportError("");
-
-            if (!window.jspdf || typeof window.jspdf.jsPDF !== "function") {
-                showExportError("pdfUnavailable");
-                return;
-            }
-
-            try {
-                const doc = new window.jspdf.jsPDF({
-                    orientation: "landscape",
-                    unit: "mm",
-                    format: "a4"
-                });
-
-                if (typeof doc.autoTable !== "function") {
-                    showExportError("pdfUnavailable");
-                    return;
-                }
-
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(20);
-                doc.setTextColor(15, 23, 42);
-                doc.text("Loan Simulator", 14, 18);
-
-                doc.autoTable({
-                    startY: 25,
-                    head: [[text("formTitle"), text("results")]],
-                    body: [
-                        ...reportDetails(),
-                        [text("payment"), money(simulation.payment)],
-                        [text("totalPaid"), money(simulation.totalPaid)],
-                        [text("totalInterest"), money(simulation.totalInterest)]
-                    ],
-                    theme: "striped",
-                    styles: { font: "helvetica", fontSize: 10, cellPadding: 3 },
-                    headStyles: { fillColor: [37, 99, 235] },
-                    margin: { left: 14, right: 14 }
-                });
-
-                const headingY = doc.lastAutoTable.finalY + 10;
-                doc.setFontSize(12);
-                doc.text(text("schedule"), 14, headingY);
-
-                const columnKeys = [
-                    "period", "initialBalance", "installment",
-                    "interest", "principal", "finalBalance"
-                ];
-
-                doc.autoTable({
-                    startY: headingY + 5,
-                    head: [columnKeys.map(text)],
-                    body: simulation.rows.map(row =>
-                        row.map((value, index) =>
-                            index === 0 ? String(value) : money(value)
-                        )
-                    ),
-                    theme: "striped",
-                    showHead: "everyPage",
-                    rowPageBreak: "avoid",
-                    styles: {
-                        font: "helvetica",
-                        fontSize: 9,
-                        cellPadding: 3,
-                        overflow: "linebreak",
-                        halign: "right"
-                    },
-                    columnStyles: { 0: { halign: "left", cellWidth: 20 } },
-                    headStyles: { fillColor: [37, 99, 235] },
-                    margin: { top: 14, bottom: 15, left: 14, right: 14 }
-                });
-
-                doc.save("loan-simulation.pdf");
-            } catch {
-                showExportError("pdfFailed");
-            }
-        });
-
-        applyLanguage();
-    </script>
 </body>
 </html>

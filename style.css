@@ -1,0 +1,359 @@
+:root {
+    font-family: system-ui, sans-serif;
+    color: #0F172A;
+    background: #F8FAFC;
+    color-scheme: light;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+main {
+    width: min(1100px, 100%);
+    margin: auto;
+    padding: 32px 20px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+}
+
+h2 {
+    font-size: 1.25rem;
+    margin-top: 0;
+}
+
+p {
+    line-height: 1.6;
+}
+
+.muted {
+    color: #475569;
+}
+
+header p {
+    margin: 0;
+}
+
+.panel,
+.card {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 24px;
+    min-width: 0;
+}
+
+.panel {
+    margin-bottom: 24px;
+    box-shadow: 0 6px 24px rgb(15 23 42 / 4%);
+}
+
+.fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+input,
+select,
+button {
+    font: inherit;
+}
+
+input,
+select {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid #94A3B8;
+    border-radius: 10px;
+    padding: 12px;
+    background: white;
+    color: #0F172A;
+}
+
+:where(input, select, button, .table-wrap):focus-visible {
+    outline: 3px solid #2563EB;
+    outline-offset: 3px;
+}
+
+[aria-invalid="true"] {
+    border-color: #B91C1C;
+}
+
+button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 12px 22px;
+    border: 0;
+    border-radius: 10px;
+    background: #2563EB;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    background: #1D4ED8;
+}
+
+button:active {
+    background: #1E40AF;
+}
+
+.calculate {
+    margin-top: 24px;
+}
+
+.secondary {
+    background: #0F172A;
+}
+
+.secondary:hover {
+    background: #334155;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.language {
+    min-width: 150px;
+}
+
+svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.card:first-child {
+    background: #EFF6FF;
+    border-color: #BFDBFE;
+}
+
+.card p {
+    color: #475569;
+    margin: 0 0 8px;
+}
+
+.card strong {
+    font-size: 1.5rem;
+    overflow-wrap: anywhere;
+}
+
+.error {
+    color: #B91C1C;
+    font-weight: 600;
+}
+
+.error:empty {
+    display: none;
+}
+
+dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+}
+
+dt {
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+dd {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    white-space: nowrap;
+}
+
+caption {
+    text-align: left;
+    font-size: 1.25rem;
+    font-weight: 700;
+    padding-bottom: 20px;
+}
+
+th,
+td {
+    padding: 14px;
+    text-align: right;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+th {
+    background: #F8FAFC;
+}
+
+th:first-child,
+td:first-child {
+    text-align: left;
+}
+
+td {
+    font-variant-numeric: tabular-nums;
+}
+
+tbody tr:hover {
+    background: #F8FAFC;
+}
+
+.note {
+    font-size: .9rem;
+    margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+    header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .fields,
+    .summary,
+    dl {
+        grid-template-columns: 1fr;
+    }
+
+    main {
+        padding: 24px 16px;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+@page {
+    size: A4 landscape;
+    margin: 12mm;
+}
+
+@media print {
+    body {
+        background: white;
+        font-size: 10pt;
+    }
+
+    main {
+        width: 100%;
+        padding: 0;
+    }
+
+    .language,
+    #input-panel,
+    .actions,
+    .error,
+    .intro {
+        display: none !important;
+    }
+
+    header {
+        margin-bottom: 16px;
+    }
+
+    .panel,
+    .card {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 12px;
+    }
+
+    .summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    dl {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .summary,
+    .details {
+        break-inside: avoid;
+    }
+
+    .table-wrap {
+        overflow: visible;
+    }
+
+    table {
+        white-space: normal;
+        table-layout: fixed;
+        font-size: 9pt;
+    }
+
+    th,
+    td {
+        padding: 7px;
+        overflow-wrap: anywhere;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
