@@ -4,84 +4,445 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Simulator</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: #0F172A;
+            background: #F8FAFC;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; }
+        [hidden] { display: none !important; }
+
+        .container {
+            width: min(1100px, 100%);
+            margin: auto;
+            padding: 32px 20px 56px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        h1 { margin: 8px 0; font-size: clamp(1.8rem, 5vw, 2.5rem); }
+        h2 { margin: 0 0 24px; font-size: 1.25rem; }
+        p { line-height: 1.6; }
+        .muted { color: #475569; }
+        header p { margin: 0; }
+        .brand { color: #2563EB; }
+
+        .panel {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 6px 24px rgb(15 23 42 / 4%);
+            margin-bottom: 24px;
+            min-width: 0;
+        }
+
+        .fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        input, select, button { font: inherit; }
+
+        input, select {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px;
+            border: 1px solid #94A3B8;
+            border-radius: 10px;
+            background: #FFFFFF;
+            color: #0F172A;
+        }
+
+        input:hover, select:hover { border-color: #2563EB; }
+
+        :where(input, select, button, .table-wrap):focus-visible {
+            outline: 3px solid #2563EB;
+            outline-offset: 3px;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 48px;
+            padding: 12px 24px;
+            border: 0;
+            border-radius: 10px;
+            background: #2563EB;
+            color: #FFFFFF;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 28px;
+        }
+
+        button:hover { background: #1D4ED8; }
+        button:active { background: #1E40AF; }
+
+        svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        .brand svg { width: 32px; height: 32px; }
+        .language { min-width: 150px; }
+
+        #error {
+            color: #B91C1C;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        #error:empty { display: none; }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            padding: 24px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            min-width: 0;
+        }
+
+        .card:first-child {
+            background: #EFF6FF;
+            border-color: #BFDBFE;
+        }
+
+        .card p { margin: 0 0 8px; color: #475569; }
+        .card strong {
+            font-size: clamp(1.2rem, 3vw, 1.7rem);
+            overflow-wrap: anywhere;
+        }
+
+        .table-wrap { overflow-x: auto; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        caption { text-align: left; font-weight: 700; padding-bottom: 20px; font-size: 1.25rem; }
+        th, td { padding: 16px; text-align: right; border-bottom: 1px solid #E2E8F0; }
+        th { background: #F8FAFC; font-size: .9rem; }
+        th:first-child, td:first-child { text-align: left; }
+        tbody tr:hover { background: #F8FAFC; }
+        td { font-variant-numeric: tabular-nums; }
+        .note { font-size: .9rem; margin-bottom: 0; }
+
+        @media (max-width: 640px) {
+            .container { padding: 24px 16px; }
+            header { align-items: flex-start; flex-direction: column; }
+            .language { width: 100%; }
+            .fields, .summary { grid-template-columns: 1fr; }
+            .panel { padding: 20px; }
+            button { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-    <h1>Loan Simulator</h1>
+    <svg hidden xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+            <symbol id="icon-loan" viewBox="0 0 24 24">
+                <path d="M3 10h18L12 3 3 10ZM5 10v10m5-10v10m4-10v10m5-10v10M3 21h18"/>
+            </symbol>
+            <symbol id="icon-percent" viewBox="0 0 24 24">
+                <path d="m5 19 14-14"/>
+                <circle cx="7" cy="7" r="3"/>
+                <circle cx="17" cy="17" r="3"/>
+            </symbol>
+            <symbol id="icon-calendar" viewBox="0 0 24 24">
+                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                <path d="M7 3v4m10-4v4M3 11h18m-13 5h2m4 0h2"/>
+            </symbol>
+            <symbol id="icon-calculate" viewBox="0 0 24 24">
+                <rect x="5" y="2" width="14" height="20" rx="2"/>
+                <path d="M8 6h8M8 11h1m6 0h1m-8 4h1m6 0h1m-8 4h1m6 0h1"/>
+            </symbol>
+        </defs>
+    </svg>
 
-    <form id="loan-form" novalidate>
-        <p>
-            <label for="amount">Monto del préstamo:</label>
-            <input type="number" id="amount" min="0" step="any" required>
-        </p>
+    <main class="container">
+        <header>
+            <div>
+                <div class="brand">
+                    <svg aria-hidden="true"><use href="#icon-loan"/></svg>
+                </div>
+                <h1>Loan Simulator</h1>
+                <p class="muted" data-i18n="intro"></p>
+            </div>
+            <div class="language">
+                <label for="language" data-i18n="language"></label>
+                <select id="language">
+                    <option value="es" lang="es">Español</option>
+                    <option value="en" lang="en">English</option>
+                </select>
+            </div>
+        </header>
 
-        <p>
-            <label for="rate">Tasa de interés (%):</label>
-            <input type="number" id="rate" min="0" step="any" required>
-        </p>
+        <section class="panel" aria-labelledby="form-title">
+            <h2 id="form-title" data-i18n="formTitle"></h2>
+            <form id="loan-form" novalidate>
+                <div class="fields">
+                    <div>
+                        <label for="amount">
+                            <svg aria-hidden="true"><use href="#icon-loan"/></svg>
+                            <span data-i18n="amount"></span>
+                        </label>
+                        <input id="amount" type="number" min="0" step="any" required>
+                    </div>
+                    <div>
+                        <label for="rate">
+                            <svg aria-hidden="true"><use href="#icon-percent"/></svg>
+                            <span data-i18n="rate"></span>
+                        </label>
+                        <input id="rate" type="number" min="0" step="any" required>
+                    </div>
+                    <div>
+                        <label for="rate-type" data-i18n="rateType"></label>
+                        <select id="rate-type">
+                            <option value="monthly" data-i18n="monthly"></option>
+                            <option value="annual" data-i18n="annual"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="months">
+                            <svg aria-hidden="true"><use href="#icon-calendar"/></svg>
+                            <span data-i18n="months"></span>
+                        </label>
+                        <input id="months" type="number" min="1" step="1" required>
+                    </div>
+                </div>
+                <button type="submit">
+                    <svg aria-hidden="true"><use href="#icon-calculate"/></svg>
+                    <span data-i18n="calculate"></span>
+                </button>
+                <p id="error" role="alert"></p>
+            </form>
+        </section>
 
-        <p>
-            <label for="rate-type">Tipo de tasa:</label>
-            <select id="rate-type">
-                <option value="monthly">Efectiva Mensual</option>
-                <option value="annual">Efectiva Anual</option>
-            </select>
-        </p>
-
-        <p>
-            <label for="months">Plazo en meses:</label>
-            <input type="number" id="months" min="1" step="1" required>
-        </p>
-
-        <button type="submit">Calcular</button>
-    </form>
-
-    <p id="error" role="alert"></p>
-
-    <section id="results" hidden aria-live="polite">
-        <h2>Resultados</h2>
-        <p>Cuota mensual: <span id="monthly-payment"></span></p>
-        <p>Total pagado: <span id="total-paid"></span></p>
-        <p>Total de intereses: <span id="total-interest"></span></p>
-        <p>Los valores monetarios se muestran con dos decimales.</p>
-
-        <table>
-            <caption>Tabla de amortización</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Período</th>
-                    <th scope="col">Saldo inicial</th>
-                    <th scope="col">Cuota</th>
-                    <th scope="col">Interés</th>
-                    <th scope="col">Abono a capital</th>
-                    <th scope="col">Saldo final</th>
-                </tr>
-            </thead>
-            <tbody id="schedule"></tbody>
-        </table>
-    </section>
+        <section id="results" hidden aria-labelledby="results-title" aria-live="polite">
+            <h2 id="results-title" data-i18n="results"></h2>
+            <div class="summary">
+                <div class="card">
+                    <p data-i18n="payment"></p>
+                    <strong id="monthly-payment"></strong>
+                </div>
+                <div class="card">
+                    <p data-i18n="totalPaid"></p>
+                    <strong id="total-paid"></strong>
+                </div>
+                <div class="card">
+                    <p data-i18n="totalInterest"></p>
+                    <strong id="total-interest"></strong>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="table-wrap" tabindex="0" role="region" aria-labelledby="table-title">
+                    <table>
+                        <caption id="table-title" data-i18n="schedule"></caption>
+                        <thead>
+                            <tr>
+                                <th scope="col" data-i18n="period"></th>
+                                <th scope="col" data-i18n="initialBalance"></th>
+                                <th scope="col" data-i18n="installment"></th>
+                                <th scope="col" data-i18n="interest"></th>
+                                <th scope="col" data-i18n="principal"></th>
+                                <th scope="col" data-i18n="finalBalance"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule"></tbody>
+                    </table>
+                </div>
+                <p class="muted note" data-i18n="decimals"></p>
+            </div>
+        </section>
+    </main>
 
     <script>
+        const translations = {
+            es: {
+                language: "Idioma",
+                intro: "Explora tus cuotas y planifica tu próximo préstamo.",
+                formTitle: "Datos del préstamo",
+                amount: "Monto del préstamo",
+                rate: "Tasa de interés (%)",
+                rateType: "Tipo de tasa",
+                monthly: "Efectiva Mensual",
+                annual: "Efectiva Anual",
+                months: "Plazo en meses",
+                calculate: "Calcular préstamo",
+                results: "Resumen de tu préstamo",
+                payment: "Cuota mensual",
+                totalPaid: "Total pagado",
+                totalInterest: "Total de intereses",
+                decimals: "Valores con dos decimales, expresados en la misma unidad monetaria del monto ingresado.",
+                schedule: "Tabla de amortización",
+                period: "Período",
+                initialBalance: "Saldo inicial",
+                installment: "Cuota",
+                interest: "Interés",
+                principal: "Abono a capital",
+                finalBalance: "Saldo final",
+                invalidAmount: "Ingresa un monto del préstamo mayor que cero.",
+                invalidRate: "Ingresa una tasa de interés igual o mayor que cero.",
+                invalidMonths: "Ingresa un plazo en meses que sea un número entero positivo.",
+                invalidPayment: "No es posible calcular la cuota con estos valores.",
+                overflow: "Los valores ingresados exceden la capacidad de cálculo."
+            },
+            en: {
+                language: "Language",
+                intro: "Explore your payments and plan your next loan.",
+                formTitle: "Loan details",
+                amount: "Loan amount",
+                rate: "Interest rate (%)",
+                rateType: "Rate type",
+                monthly: "Effective Monthly",
+                annual: "Effective Annual",
+                months: "Term in months",
+                calculate: "Calculate loan",
+                results: "Your loan summary",
+                payment: "Monthly payment",
+                totalPaid: "Total paid",
+                totalInterest: "Total interest",
+                decimals: "Values use two decimal places and the same monetary unit as the entered loan amount.",
+                schedule: "Amortization schedule",
+                period: "Period",
+                initialBalance: "Opening balance",
+                installment: "Payment",
+                interest: "Interest",
+                principal: "Principal repayment",
+                finalBalance: "Closing balance",
+                invalidAmount: "Enter a loan amount greater than zero.",
+                invalidRate: "Enter an interest rate greater than or equal to zero.",
+                invalidMonths: "Enter a positive whole number of months.",
+                invalidPayment: "The payment cannot be calculated with these values.",
+                overflow: "The entered values exceed the calculation capacity."
+            }
+        };
+
         const form = document.getElementById("loan-form");
         const error = document.getElementById("error");
         const results = document.getElementById("results");
         const schedule = document.getElementById("schedule");
+        const languageSelector = document.getElementById("language");
 
-        const moneyFormatter = new Intl.NumberFormat("es-CO", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+        let language = "es";
+        let errorKey = "";
+        let simulation = null;
+        let moneyFormatter;
 
-        function formatMoney(value) {
-            return moneyFormatter.format(value);
+        try {
+            const saved = localStorage.getItem("loan-simulator-language");
+            if (saved === "es" || saved === "en") language = saved;
+        } catch {
+            // La aplicación funciona aunque el almacenamiento esté bloqueado.
         }
+
+        function showError(key, fieldId) {
+            errorKey = key;
+            error.textContent = key ? translations[language][key] : "";
+
+            if (fieldId) {
+                const field = document.getElementById(fieldId);
+                field.setAttribute("aria-invalid", "true");
+                field.setAttribute("aria-describedby", "error");
+                field.focus();
+            }
+        }
+
+        function renderResults() {
+            schedule.replaceChildren();
+            results.hidden = simulation === null;
+            if (!simulation) return;
+
+            document.getElementById("monthly-payment").textContent =
+                moneyFormatter.format(simulation.payment);
+            document.getElementById("total-paid").textContent =
+                moneyFormatter.format(simulation.totalPaid);
+            document.getElementById("total-interest").textContent =
+                moneyFormatter.format(simulation.totalInterest);
+
+            const fragment = document.createDocumentFragment();
+
+            simulation.rows.forEach(function (values) {
+                const row = document.createElement("tr");
+                values.forEach(function (value, index) {
+                    const cell = document.createElement("td");
+                    cell.textContent = index === 0
+                        ? String(value)
+                        : moneyFormatter.format(value);
+                    row.appendChild(cell);
+                });
+                fragment.appendChild(row);
+            });
+
+            schedule.appendChild(fragment);
+        }
+
+        function applyLanguage() {
+            document.documentElement.lang = language;
+            languageSelector.value = language;
+            moneyFormatter = new Intl.NumberFormat(
+                language === "es" ? "es-CO" : "en-US",
+                { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+            );
+
+            document.querySelectorAll("[data-i18n]").forEach(function (element) {
+                element.textContent = translations[language][element.dataset.i18n];
+            });
+
+            showError(errorKey);
+            renderResults();
+        }
+
+        languageSelector.addEventListener("change", function () {
+            language = languageSelector.value;
+            try {
+                localStorage.setItem("loan-simulator-language", language);
+            } catch {
+                // Se mantiene el idioma durante la sesión.
+            }
+            applyLanguage();
+        });
 
         form.addEventListener("submit", function (event) {
             event.preventDefault();
+            simulation = null;
+            showError("");
+            renderResults();
 
-            // Limpiar la simulación anterior.
-            error.textContent = "";
-            results.hidden = true;
-            schedule.replaceChildren();
+            form.querySelectorAll("[aria-invalid]").forEach(function (field) {
+                field.removeAttribute("aria-invalid");
+                field.removeAttribute("aria-describedby");
+            });
 
             const amount = document.getElementById("amount").valueAsNumber;
             const rate = document.getElementById("rate").valueAsNumber;
@@ -89,23 +450,19 @@
             const rateType = document.getElementById("rate-type").value;
 
             if (!Number.isFinite(amount) || amount <= 0) {
-                error.textContent = "Ingresa un monto del préstamo mayor que cero.";
+                showError("invalidAmount", "amount");
                 return;
             }
-
             if (!Number.isFinite(rate) || rate < 0) {
-                error.textContent = "Ingresa una tasa de interés igual o mayor que cero.";
+                showError("invalidRate", "rate");
                 return;
             }
-
             if (!Number.isSafeInteger(months) || months <= 0) {
-                error.textContent = "Ingresa un plazo en meses que sea un número entero positivo.";
+                showError("invalidMonths", "months");
                 return;
             }
 
             const decimalRate = rate / 100;
-
-            // log1p y expm1 conservan precisión para tasas pequeñas.
             const monthlyRate = rateType === "annual"
                 ? Math.expm1(Math.log1p(decimalRate) / 12)
                 : decimalRate;
@@ -118,23 +475,21 @@
                 );
 
             if (!Number.isFinite(payment) || payment <= 0) {
-                error.textContent = "No es posible calcular la cuota con estos valores.";
+                showError("invalidPayment");
                 return;
             }
 
             let balance = amount;
             let totalPaid = 0;
             let totalInterest = 0;
-            const rows = document.createDocumentFragment();
+            const rows = [];
 
             for (let period = 1; period <= months; period++) {
                 const initialBalance = balance;
                 const interest = initialBalance * monthlyRate;
-
                 let principalPayment = payment - interest;
                 let currentPayment = payment;
 
-                // Ajustar la última cuota para cancelar el saldo pendiente.
                 if (period === months) {
                     principalPayment = initialBalance;
                     currentPayment = principalPayment + interest;
@@ -151,46 +506,26 @@
                 totalPaid += currentPayment;
                 totalInterest += interest;
 
-                if (
-                    !Number.isFinite(totalPaid) ||
-                    !Number.isFinite(totalInterest)
-                ) {
-                    error.textContent = "Los valores ingresados exceden la capacidad de cálculo.";
+                if (!Number.isFinite(totalPaid) || !Number.isFinite(totalInterest)) {
+                    showError("overflow");
                     return;
                 }
 
-                const row = document.createElement("tr");
-                const values = [
+                rows.push([
                     period,
-                    formatMoney(initialBalance),
-                    formatMoney(currentPayment),
-                    formatMoney(interest),
-                    formatMoney(principalPayment),
-                    formatMoney(balance)
-                ];
-
-                values.forEach(function (value) {
-                    const cell = document.createElement("td");
-                    cell.textContent = value;
-                    row.appendChild(cell);
-                });
-
-                rows.appendChild(row);
+                    initialBalance,
+                    currentPayment,
+                    interest,
+                    principalPayment,
+                    balance
+                ]);
             }
 
-            schedule.appendChild(rows);
-
-            document.getElementById("monthly-payment").textContent =
-                formatMoney(payment);
-
-            document.getElementById("total-paid").textContent =
-                formatMoney(totalPaid);
-
-            document.getElementById("total-interest").textContent =
-                formatMoney(totalInterest);
-
-            results.hidden = false;
+            simulation = { payment, totalPaid, totalInterest, rows };
+            renderResults();
         });
+
+        applyLanguage();
     </script>
 </body>
 </html>
